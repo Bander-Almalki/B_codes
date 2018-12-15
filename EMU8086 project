@@ -1,0 +1,157 @@
+#include "stdafx.h"
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <cstring>
+#include <stdint.h> 
+
+#pragma warning(disable : 4996)
+
+using namespace std;
+
+int main() {
+	/*
+	string line;
+	ifstream myfile ("C:\\emu8086\\vdrive\\C\\ADD.COM");
+	if (myfile.is_open())
+	{
+	while ( getline (myfile,line) )
+	{
+	cout << line << endl;
+	}
+	myfile.close();
+	}
+	else cout << "Unable to open file";
+	*/
+	
+	FILE *fileptr;
+	char *buffer;
+	char *buffer2;
+	long filelen;
+
+	fileptr = fopen("C:\\emu8086\\vdrive\\C\\ADD.COM", "rb");  // Open the file in binary mode
+	fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
+	filelen = ftell(fileptr);             // Get the current byte offset in the file
+	rewind(fileptr);                      // Jump back to the beginning of the file
+
+	buffer = (char *)malloc((filelen + 1) * sizeof(char)); // Enough memory for file + \0
+	
+	fread(buffer, filelen, 1, fileptr); // Read in the entire file
+	fclose(fileptr); // Close the file
+
+	uint8_t buffer1[256];
+
+	int ip=100;			//instruction pointers
+	uint16_t ax=0;			//
+	uint8_t al=0;
+	uint8_t ah=0;
+
+	uint16_t bx = 0;			//
+	uint8_t bl = 0;
+	uint8_t bh = 0;
+
+	uint16_t cx = 0;			//
+	uint8_t cl = 0;
+	uint8_t ch = 0;
+	
+	uint16_t dx = 0;			//
+	uint8_t dl = 0;
+	uint8_t dh = 0;
+
+	
+	
+	cout << " the original code is\n";
+
+	for (int i = 0; i <filelen; i++)
+	{
+		cout << buffer[i];
+		
+	}
+
+	
+
+
+	cout << "\n\n After translating the code into hexadicimal \n";
+
+	for (int i = 0; i <filelen; i++)
+	{
+		//cout << sizeof(buffer);
+		
+
+		printf("%02x\n", (uint8_t)buffer[i]);
+	}
+
+	
+
+	cout << "\n\n Rebuilding the original program \n";
+
+	for (int i = 0; i <filelen; i++)
+	{
+
+		if ((uint8_t)buffer[i] == 0xb8)
+		{
+
+			ah = buffer[i + 1];
+			al = buffer[i + 2];
+			ax = al+ah;
+
+			
+			
+			printf("mov\t ax, %04x\n", ax);
+			
+			
+			
+			
+			ip += 3;
+			cout << "\t\t\t the instruction pointer = " << ip << endl;
+			
+			printf("\t\t\t ax= %04x", ax);   printf("\t al= %02x", al); printf("\t ah= %02x\n", ah);
+			printf("\t\t\t bx= %04x", bx); printf("\t bl= %02x", bl); printf("\t bh= %02x\n", bh);
+			printf("\t\t\t cx= %04x", cx); printf("\t cl= %02x", cl); printf("\t ch= %02x\n", ch);
+			printf("\t\t\t dx= %04x", dx); printf("\t dl= %02x", dl); printf("\t dh= %02x\n", dh);
+		}
+		if ((uint8_t)buffer[i] == 0xba)
+		{
+
+			dh = buffer[i + 1];
+			dl = buffer[i + 2];
+			dx = dl + dh;
+
+			
+
+			printf("mov\t dx, %04x\n", dx);
+
+			ip += 3;
+			cout << "\t\t\t the instruction pointer = " << ip << endl;
+
+			printf("\t\t\t ax= %04x", ax);   printf("\t al= %02x", al); printf("\t ah= %02x\n", ah);
+			printf("\t\t\t bx= %04x", bx); printf("\t bl= %02x", bl); printf("\t bh= %02x\n", bh);
+			printf("\t\t\t cx= %04x", cx); printf("\t cl= %02x", cl); printf("\t ch= %02x\n", ch);
+			printf("\t\t\t dx= %04x", dx); printf("\t dl= %02x", dl); printf("\t dh= %02x\n", dh);
+		}
+		if ((uint8_t)buffer[i] ==0x01)
+		{
+			ax = ax + dx;
+			ah = ax ;
+			al = ax << 8;
+
+
+			printf("add\t ax,dx %04x\n", dx);
+
+			ip += 2;
+			cout << "\t\t\t the instruction pointer = " << ip << endl;
+
+			printf("\t\t\t ax= %04x", ax);   printf("\t al= %02x", al); printf("\t ah= %02x\n", ah);
+			printf("\t\t\t bx= %04x", bx); printf("\t bl= %02x", bl); printf("\t bh= %02x\n", bh);
+			printf("\t\t\t cx= %04x", cx); printf("\t cl= %02x", cl); printf("\t ch= %02x\n", ch);
+			printf("\t\t\t dx= %04x", dx); printf("\t dl= %02x", dl); printf("\t dh= %02x\n", dh);
+
+		}
+		
+	}
+
+	return 0;
+
+
+}
